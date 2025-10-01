@@ -1,0 +1,20 @@
+.result-page h1 {
+  font-size: 2.5rem;
+  margin-bottom: 2rem;
+}
+
+.result-message {
+  font-size: 1.8rem;
+  margin-bottom: 2rem;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: var(--border-radius);
+  backdrop-filter: blur(10px);
+}
+
+.result-actions {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+}

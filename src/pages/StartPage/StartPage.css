@@ -1,0 +1,18 @@
+.start-page {
+  text-align: center;
+  color: white;
+  max-width: 500px;
+  width: 100%;
+}
+
+.start-page h1 {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.start-page p {
+  font-size: 1.2rem;
+  margin-bottom: 2rem;
+  opacity: 0.9;
+}
