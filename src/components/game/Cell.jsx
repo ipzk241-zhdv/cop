@@ -5,8 +5,16 @@ const Cell = ({ row, col, value, onClick }) => {
     onClick(row, col);
   };
 
+  const getCellClass = () => {
+    let className = "cell";
+    if (value) {
+      className += ` ${value.toLowerCase()}`;
+    }
+    return className;
+  };
+
   return (
-    <button className="cell" onClick={handleClick}>
+    <button className={getCellClass()} onClick={handleClick}>
       {value || ""}
     </button>
   );

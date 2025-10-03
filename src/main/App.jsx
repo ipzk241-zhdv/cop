@@ -1,21 +1,12 @@
-import { useState } from "react";
+import { useNavigation } from "../hooks/useNavigation";
 import StartPage from "../pages/StartPage/StartPage";
 import GamePage from "../pages/GamePage/GamePage";
 import ResultPage from "../pages/ResultPage/ResultPage";
 import "./App.css";
 
 function App() {
-  const [currentPage, setCurrentPage] = useState("start");
-  const [gameResult, setGameResult] = useState(null);
-
-  const navigateTo = (page) => {
-    setCurrentPage(page);
-  };
-
-  const handleGameFinish = (result) => {
-    setGameResult(result);
-    setCurrentPage("results");
-  };
+  const { currentPage, gameResult, navigateTo, handleGameFinish } =
+    useNavigation();
 
   return (
     <div className="app">
