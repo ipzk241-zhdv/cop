@@ -1,9 +1,15 @@
-import Layout from "../../components/ui/Layout";
+import { useNavigate, useParams } from "react-router-dom";
 import Button from "../../components/ui/Button";
 import Board from "../../components/game/Board";
 import "./ResultPage.css";
 
-const ResultPage = ({ onNavigate, result, gameState }) => {
+const ResultPage = () => {
+  const { userId } = useParams();
+  const navigate = useNavigate();
+
+  const gameData = userId ? localStorage.getItem(`gameResult_${userId}`) : null;
+  const { result, state } = gameData ? JSON.parse(gameData) : {};
+
   const getResultMessage = () => {
     if (!result) return "Гра завершена";
 
@@ -16,37 +22,43 @@ const ResultPage = ({ onNavigate, result, gameState }) => {
     return `🎉 Переміг гравець ${result.winner}!`;
   };
 
+  const handlePlayAgain = () => {
+    if (userId) {
+      navigate(`/game/${userId}`);
+    } else {
+      navigate("/game");
+    }
+  };
+
   return (
-    <Layout>
-      <div className="page result-page">
-        <h1>Результат гри</h1>
+    <div className="page result-page">
+      <h1>Результат гри</h1>
+      {userId && <p className="user-id">ID гравця: {userId}</p>}
 
-        <div className="result-content">
-          <div className="result-message">{getResultMessage()}</div>
+      <div className="result-content">
+        <div className="result-message">{getResultMessage()}</div>
 
-          {gameState && gameState.board && (
-            <div className="final-board-container">
-              <h3>Фінальне поле:</h3>
-              <Board
-                board={gameState.board}
-                onCellClick={() => {}}
-                disabled={true}
-                isResultView={true}
-              />
-            </div>
-          )}
-        </div>
-
-        <div className="result-actions">
-          <Button onClick={() => onNavigate("game")} variant="primary">
-            Грати знову
-          </Button>
-          <Button onClick={() => onNavigate("start")} variant="outline">
-            Головне меню
-          </Button>
-        </div>
+        {state && state.board && (
+          <div className="final-board-container">
+            <Board
+              board={state.board}
+              onCellClick={() => {}}
+              disabled={true}
+              isResultView={true}
+            />
+          </div>
+        )}
       </div>
-    </Layout>
+
+      <div className="result-actions">
+        <Button onClick={handlePlayAgain} variant="primary">
+          Грати знову
+        </Button>
+        <Button onClick={() => navigate("/")} variant="outline">
+          Головне меню
+        </Button>
+      </div>
+    </div>
   );
 };
 

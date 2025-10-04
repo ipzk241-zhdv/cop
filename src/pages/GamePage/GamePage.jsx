@@ -1,12 +1,15 @@
 import { useState, useEffect } from "react";
-import Layout from "../../components/ui/Layout";
+import { useNavigate, useParams } from "react-router-dom";
 import Button from "../../components/ui/Button";
 import Board from "../../components/game/Board";
 import GameEndDialog from "../../components/game/GameEndDialog";
 import { useGame } from "../../hooks/useGame";
 import "./GamePage.css";
 
-const GamePage = ({ onNavigate, onGameFinish, settings }) => {
+const GamePage = ({ settings }) => {
+  const { userId } = useParams();
+  const navigate = useNavigate();
+
   const [showEndDialog, setShowEndDialog] = useState(false);
   const [gameResult, setGameResult] = useState(null);
   const [finalGameState, setFinalGameState] = useState(null);
@@ -68,67 +71,69 @@ const GamePage = ({ onNavigate, onGameFinish, settings }) => {
     setShowEndDialog(true);
   };
 
-  const handleCloseDialog = () => {
+  const handleViewResults = () => {
     setShowEndDialog(false);
     if (gameResult && finalGameState) {
-      onGameFinish(gameResult, finalGameState);
+      localStorage.setItem(
+        `gameResult_${userId}`,
+        JSON.stringify({
+          result: gameResult,
+          state: finalGameState,
+        })
+      );
+      navigate(`/results/${userId}`);
     }
   };
 
   const handleMainMenu = () => {
     setShowEndDialog(false);
-    onNavigate("start");
+    navigate("/");
   };
 
   return (
-    <Layout>
-      <div className="page game-page">
-        <div className="game-info">
-          <h2>
-            Поточний гравець:{" "}
-            <span className={`player-${currentPlayer}`}>{currentPlayer}</span>
-          </h2>
-          <p className="game-settings-info">
-            Поле: {settings.boardSize}x{settings.boardSize} | Перемога:{" "}
-            {settings.winningLength} в ряд
-          </p>
-          {winner && (
-            <div className="winner-message">🎉 Переміг гравець {winner}!</div>
-          )}
-          {isDraw && <div className="draw-message">🤝 Нічия!</div>}
-        </div>
-
-        <Board
-          board={board}
-          onCellClick={handleCellClick}
-          disabled={!gameStatus.isGameActive || showEndDialog}
-        />
-
-        <div className="game-controls">
-          <Button onClick={() => resetGame()} variant="primary">
-            Нова гра
-          </Button>
-          <Button
-            onClick={handleSurrender}
-            variant="secondary"
-            disabled={!gameStatus.isGameActive || showEndDialog}
-          >
-            Здатися
-          </Button>
-          <Button onClick={() => onNavigate("start")} variant="outline">
-            Головне меню
-          </Button>
-        </div>
-
-        <GameEndDialog
-          isOpen={showEndDialog}
-          onClose={handleCloseDialog}
-          result={gameResult}
-          onNewGame={handleNewGame}
-          onMainMenu={handleMainMenu}
-        />
+    <div className="page game-page">
+      <div className="game-info">
+        <h2>
+          Поточний гравець:{" "}
+          <span className={`player-${currentPlayer}`}>{currentPlayer}</span>
+        </h2>
+        {userId && <p className="user-id">ID гравця: {userId}</p>}
+        {winner && (
+          <div className="winner-message">🎉 Переміг гравець {winner}!</div>
+        )}
+        {isDraw && <div className="draw-message">🤝 Нічия!</div>}
       </div>
-    </Layout>
+
+      <Board
+        board={board}
+        onCellClick={handleCellClick}
+        disabled={!gameStatus.isGameActive || showEndDialog}
+      />
+
+      <div className="game-controls">
+        <Button onClick={() => resetGame()} variant="primary">
+          Нова гра
+        </Button>
+        <Button
+          onClick={handleSurrender}
+          variant="secondary"
+          disabled={!gameStatus.isGameActive || showEndDialog}
+        >
+          Здатися
+        </Button>
+        <Button onClick={() => navigate("/")} variant="outline">
+          Головне меню
+        </Button>
+      </div>
+
+      <GameEndDialog
+        isOpen={showEndDialog}
+        onClose={handleViewResults}
+        result={gameResult}
+        onNewGame={handleNewGame}
+        onMainMenu={handleMainMenu}
+      />
+    </div>
   );
 };
 

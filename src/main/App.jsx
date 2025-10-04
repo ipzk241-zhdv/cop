@@ -1,39 +1,36 @@
-import { useNavigation } from "../hooks/useNavigation";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { useGameSettings } from "../hooks/useGameSettings";
 import StartPage from "../pages/StartPage/StartPage";
 import GamePage from "../pages/GamePage/GamePage";
 import ResultPage from "../pages/ResultPage/ResultPage";
+import Layout from "../components/ui/Layout";
 import "./App.css";
 
 function App() {
-  const { currentPage, gameResult, gameState, navigateTo, handleGameFinish } =
-    useNavigation();
   const { settings, saveSettings } = useGameSettings();
 
   return (
-    <div className="app">
-      {currentPage === "start" && (
-        <StartPage
-          onNavigate={navigateTo}
-          settings={settings}
-          onSaveSettings={saveSettings}
-        />
-      )}
-      {currentPage === "game" && (
-        <GamePage
-          onNavigate={navigateTo}
-          onGameFinish={handleGameFinish}
-          settings={settings}
-        />
-      )}
-      {currentPage === "results" && (
-        <ResultPage
-          onNavigate={navigateTo}
-          result={gameResult}
-          gameState={gameState}
-        />
-      )}
-    </div>
+    <Router>
+      <div className="app">
+        <Layout>
+          <Routes>
+            <Route
+              path="/"
+              element={
+                <StartPage settings={settings} onSaveSettings={saveSettings} />
+              }
+            />
+            <Route path="/game" element={<GamePage settings={settings} />} />
+            <Route
+              path="/game/:userId"
+              element={<GamePage settings={settings} />}
+            />
+            <Route path="/results" element={<ResultPage />} />
+            <Route path="/results/:userId" element={<ResultPage />} />
+          </Routes>
+        </Layout>
+      </div>
+    </Router>
   );
 }
 
