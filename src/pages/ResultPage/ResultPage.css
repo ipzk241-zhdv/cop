@@ -4,8 +4,8 @@
 }
 
 .result-message {
-  font-size: 1.8rem;
-  margin-bottom: 2rem;
+  font-size: 1.2rem;
+  margin-bottom: 0.5rem;
   padding: 1rem;
   background: rgba(255, 255, 255, 0.1);
   border-radius: var(--border-radius);
@@ -17,4 +17,19 @@
   justify-content: center;
   flex-wrap: wrap;
   gap: 1rem;
+}
+
+.board-result {
+  transform: scale(0.9);
+  opacity: 0.95;
+}
+
+.cell-result {
+  cursor: default;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.cell-result:hover {
+  background: rgba(255, 255, 255, 0.05);
+  transform: none;
 }

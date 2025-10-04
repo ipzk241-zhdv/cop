@@ -1,56 +1,79 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 
-export const useGame = () => {
-  const [board, setBoard] = useState(
-    Array(3)
-      .fill()
-      .map(() => Array(3).fill(null))
-  );
+export const useGame = (boardSize = 3, winningLength = 3) => {
+  const [board, setBoard] = useState(createEmptyBoard(boardSize));
   const [currentPlayer, setCurrentPlayer] = useState("X");
   const [winner, setWinner] = useState(null);
   const [isDraw, setIsDraw] = useState(false);
   const [movesCount, setMovesCount] = useState(0);
 
-  const checkWinner = useCallback((board, row, col) => {
-    const player = board[row][col];
-    if (!player) return false;
+  function createEmptyBoard(size) {
+    return Array(size)
+      .fill()
+      .map(() => Array(size).fill(null));
+  }
 
-    if (
-      board[row][0] === player &&
-      board[row][1] === player &&
-      board[row][2] === player
-    ) {
-      return true;
-    }
+  useEffect(() => {
+    resetGame();
+  }, [boardSize]);
 
-    if (
-      board[0][col] === player &&
-      board[1][col] === player &&
-      board[2][col] === player
-    ) {
-      return true;
-    }
+  const checkWinner = useCallback(
+    (board, row, col) => {
+      const player = board[row][col];
+      if (!player) return false;
 
-    if (
-      row === col &&
-      board[0][0] === player &&
-      board[1][1] === player &&
-      board[2][2] === player
-    ) {
-      return true;
-    }
+      const size = board.length;
+      const directions = [
+        [0, 1], // горизонталь
+        [1, 0], // вертикаль
+        [1, 1], // діагональ \
+        [1, -1], // діагональ /
+      ];
 
-    if (
-      row + col === 2 &&
-      board[0][2] === player &&
-      board[1][1] === player &&
-      board[2][0] === player
-    ) {
-      return true;
-    }
+      for (const [dx, dy] of directions) {
+        let count = 1;
 
-    return false;
-  }, []);
+        for (let i = 1; i < winningLength; i++) {
+          const newRow = row + dx * i;
+          const newCol = col + dy * i;
+          if (
+            newRow >= 0 &&
+            newRow < size &&
+            newCol >= 0 &&
+            newCol < size &&
+            board[newRow][newCol] === player
+          ) {
+            count++;
+          } else {
+            break;
+          }
+        }
+
+        for (let i = 1; i < winningLength; i++) {
+          const newRow = row - dx * i;
+          const newCol = col - dy * i;
+          if (
+            newRow >= 0 &&
+            newRow < size &&
+            newCol >= 0 &&
+            newCol < size &&
+            board[newRow][newCol] === player
+          ) {
+            count++;
+          } else {
+            break;
+          }
+        }
+
+        if (count >= winningLength) {
+          return true;
+        }
+      }
+
+      return false;
+    },
+    [winningLength]
+  );
 
   const makeMove = useCallback(
     (row, col) => {
@@ -70,7 +93,7 @@ export const useGame = () => {
         return true;
       }
 
-      if (newMovesCount === 9) {
+      if (newMovesCount === boardSize * boardSize) {
         setIsDraw(true);
         return true;
       }
@@ -78,20 +101,16 @@ export const useGame = () => {
       setCurrentPlayer(currentPlayer === "X" ? "O" : "X");
       return true;
     },
-    [board, currentPlayer, winner, isDraw, movesCount, checkWinner]
+    [board, currentPlayer, winner, isDraw, movesCount, boardSize, checkWinner]
   );
 
   const resetGame = useCallback(() => {
-    setBoard(
-      Array(3)
-        .fill()
-        .map(() => Array(3).fill(null))
-    );
+    setBoard(createEmptyBoard(boardSize));
     setCurrentPlayer("X");
     setWinner(null);
     setIsDraw(false);
     setMovesCount(0);
-  }, []);
+  }, [boardSize]);
 
   const gameStatus = {
     isGameActive: !winner && !isDraw,

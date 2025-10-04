@@ -46,3 +46,14 @@
   background: white;
   color: var(--primary-color);
 }
+
+.btn-dark {
+  background: var(--dark-color);
+  color: white;
+}
+
+.btn-dark:hover:not(:disabled) {
+  background: #2d3436;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(52, 58, 64, 0.4);
+}

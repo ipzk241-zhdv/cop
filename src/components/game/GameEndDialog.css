@@ -1,0 +1,24 @@
+.game-end-dialog {
+  text-align: center;
+  color: var(--dark-color);
+}
+
+.game-end-title {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+  color: var(--primary-color);
+}
+
+.game-end-message {
+  font-size: 1.3rem;
+  margin-bottom: 2rem;
+  line-height: 1.5;
+  font-weight: 500;
+}
+
+.game-end-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}

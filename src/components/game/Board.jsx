@@ -1,7 +1,12 @@
 import Cell from "./Cell";
 import "./Board.css";
 
-const Board = ({ board, onCellClick }) => {
+const Board = ({
+  board,
+  onCellClick,
+  disabled = false,
+  isResultView = false,
+}) => {
   const renderRow = (rowIndex) => {
     return board[rowIndex].map((cell, colIndex) => (
       <Cell
@@ -10,12 +15,14 @@ const Board = ({ board, onCellClick }) => {
         col={colIndex}
         value={cell}
         onClick={onCellClick}
+        disabled={disabled}
+        isResultView={isResultView}
       />
     ));
   };
 
   return (
-    <div className="board">
+    <div className={`board ${isResultView ? "board-result" : ""}`}>
       {board.map((_, rowIndex) => (
         <div key={rowIndex} className="board-row">
           {renderRow(rowIndex)}
