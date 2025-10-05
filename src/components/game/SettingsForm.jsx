@@ -1,44 +1,42 @@
 import { useEffect } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import Button from "../ui/Button";
+import { useSettingsStore } from "../../stores/useSettingsStore";
 import "./SettingsForm.css";
 
-const SettingsForm = ({ settings, onSave, onClose }) => {
+const SettingsForm = ({ onClose }) => {
+  const { boardSize, winningLength, setSettings } = useSettingsStore();
+
   const {
     register,
     handleSubmit,
     control,
     setValue,
-    watch,
     formState: { errors },
   } = useForm({
-    defaultValues: settings,
+    defaultValues: {
+      boardSize,
+      winningLength,
+    },
   });
 
-  const boardSize = useWatch({
+  const formBoardSize = useWatch({
     control,
     name: "boardSize",
-    defaultValue: settings.boardSize,
-  });
-
-  const winningLength = useWatch({
-    control,
-    name: "winningLength",
-    defaultValue: settings.winningLength,
+    defaultValue: boardSize,
   });
 
   useEffect(() => {
-    const currentBoardSize = parseInt(boardSize) || settings.boardSize;
-    const currentWinningLength =
-      parseInt(winningLength) || settings.winningLength;
+    const currentBoardSize = parseInt(formBoardSize) || boardSize;
+    const currentWinningLength = parseInt(winningLength) || winningLength;
 
     if (currentWinningLength > currentBoardSize) {
       setValue("winningLength", currentBoardSize);
     }
-  }, [boardSize, winningLength, setValue, settings]);
+  }, [formBoardSize, winningLength, setValue, boardSize]);
 
   const onSubmit = (data) => {
-    onSave({
+    setSettings({
       boardSize: parseInt(data.boardSize),
       winningLength: parseInt(data.winningLength),
     });
@@ -46,7 +44,7 @@ const SettingsForm = ({ settings, onSave, onClose }) => {
   };
 
   const getMaxWinningLength = () => {
-    return parseInt(boardSize) || settings.boardSize;
+    return parseInt(formBoardSize) || boardSize;
   };
 
   const maxWinningLength = getMaxWinningLength();

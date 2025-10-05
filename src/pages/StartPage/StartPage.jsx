@@ -3,11 +3,13 @@ import { useNavigate } from "react-router-dom";
 import Button from "../../components/ui/Button";
 import SettingsForm from "../../components/game/SettingsForm";
 import Modal from "../../components/ui/Modal";
+import { useSettingsStore } from "../../stores/useSettingsStore";
 import "./StartPage.css";
 
-const StartPage = ({ settings, onSaveSettings }) => {
+const StartPage = () => {
   const [showSettings, setShowSettings] = useState(false);
   const navigate = useNavigate();
+  const { boardSize, winningLength } = useSettingsStore();
 
   const generateUserId = () => {
     return `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
@@ -28,14 +30,13 @@ const StartPage = ({ settings, onSaveSettings }) => {
         <Button onClick={() => setShowSettings(true)} variant="outline">
           Налаштування
         </Button>
+        <Button onClick={() => navigate("/stats")} variant="dark">
+          Таблиця результатів
+        </Button>
       </div>
 
       <Modal isOpen={showSettings} onClose={() => setShowSettings(false)}>
-        <SettingsForm
-          settings={settings}
-          onSave={onSaveSettings}
-          onClose={() => setShowSettings(false)}
-        />
+        <SettingsForm onClose={() => setShowSettings(false)} />
       </Modal>
     </div>
   );

@@ -1,18 +1,25 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import Layout from "../../components/ui/Layout";
 import Button from "../../components/ui/Button";
 import Board from "../../components/game/Board";
 import GameEndDialog from "../../components/game/GameEndDialog";
 import { useGame } from "../../hooks/useGame";
+import { useSettingsStore } from "../../stores/useSettingsStore";
+import { useResultsStore } from "../../stores/useResultsStore";
 import "./GamePage.css";
 
-const GamePage = ({ settings }) => {
+const GamePage = () => {
   const { userId } = useParams();
   const navigate = useNavigate();
+
+  const { boardSize, winningLength } = useSettingsStore();
+  const { addResult } = useResultsStore();
 
   const [showEndDialog, setShowEndDialog] = useState(false);
   const [gameResult, setGameResult] = useState(null);
   const [finalGameState, setFinalGameState] = useState(null);
+  const [gameStartTime, setGameStartTime] = useState(Date.now());
 
   const {
     board,
@@ -20,9 +27,14 @@ const GamePage = ({ settings }) => {
     winner,
     isDraw,
     gameStatus,
+    movesCount,
     makeMove,
     resetGame,
-  } = useGame(settings.boardSize, settings.winningLength);
+  } = useGame(boardSize, winningLength);
+
+  useEffect(() => {
+    setGameStartTime(Date.now());
+  }, []);
 
   useEffect(() => {
     if (gameStatus.isGameFinished && !showEndDialog) {
@@ -53,6 +65,7 @@ const GamePage = ({ settings }) => {
     setShowEndDialog(false);
     setGameResult(null);
     setFinalGameState(null);
+    setGameStartTime(Date.now());
   };
 
   const handleSurrender = () => {
@@ -73,16 +86,33 @@ const GamePage = ({ settings }) => {
 
   const handleViewResults = () => {
     setShowEndDialog(false);
+
     if (gameResult && finalGameState) {
-      localStorage.setItem(
-        `gameResult_${userId}`,
-        JSON.stringify({
-          result: gameResult,
-          state: finalGameState,
-        })
-      );
-      navigate(`/results/${userId}`);
+      const gameDuration = Date.now() - gameStartTime;
+
+      // Спрощена логіка - зберігаємо тільки виграші та нічиї
+      const resultType = gameResult.isDraw ? "draw" : "win";
+
+      const currentUserId = userId || generateUserId();
+
+      addResult({
+        playerId: currentUserId,
+        movesCount: movesCount,
+        result: resultType,
+        winner: gameResult.winner,
+        boardSize: boardSize,
+        winningLength: winningLength,
+        duration: gameDuration,
+        board: finalGameState.board,
+        reason: gameResult.reason,
+      });
+
+      navigate(`/results/${currentUserId}`);
     }
+  };
+
+  const generateUserId = () => {
+    return `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
   };
 
   const handleMainMenu = () => {
@@ -91,49 +121,58 @@ const GamePage = ({ settings }) => {
   };
 
   return (
-    <div className="page game-page">
-      <div className="game-info">
-        <h2>
-          Поточний гравець:{" "}
-          <span className={`player-${currentPlayer}`}>{currentPlayer}</span>
-        </h2>
-        {userId && <p className="user-id">ID гравця: {userId}</p>}
-        {winner && (
-          <div className="winner-message">🎉 Переміг гравець {winner}!</div>
-        )}
-        {isDraw && <div className="draw-message">🤝 Нічия!</div>}
-      </div>
+    <Layout>
+      <div className="page game-page">
+        <div className="game-info">
+          <h2>
+            Поточний гравець:{" "}
+            <span className={`player-${currentPlayer}`}>{currentPlayer}</span>
+          </h2>
+          <p className="game-settings-info">
+            Поле: {boardSize}x{boardSize} | Перемога: {winningLength} в ряд |
+            Ходів: {movesCount}
+          </p>
+          {userId && <p className="user-id">ID гравця: {userId}</p>}
+          {winner && (
+            <div className="winner-message">🎉 Переміг гравець {winner}!</div>
+          )}
+          {isDraw && <div className="draw-message">🤝 Нічия!</div>}
+        </div>
 
-      <Board
-        board={board}
-        onCellClick={handleCellClick}
-        disabled={!gameStatus.isGameActive || showEndDialog}
-      />
-
-      <div className="game-controls">
-        <Button onClick={() => resetGame()} variant="primary">
-          Нова гра
-        </Button>
-        <Button
-          onClick={handleSurrender}
-          variant="secondary"
+        <Board
+          board={board}
+          onCellClick={handleCellClick}
           disabled={!gameStatus.isGameActive || showEndDialog}
-        >
-          Здатися
-        </Button>
-        <Button onClick={() => navigate("/")} variant="outline">
-          Головне меню
-        </Button>
-      </div>
+        />
 
-      <GameEndDialog
-        isOpen={showEndDialog}
-        onClose={handleViewResults}
-        result={gameResult}
-        onNewGame={handleNewGame}
-        onMainMenu={handleMainMenu}
-      />
-    </div>
+        <div className="game-controls">
+          <Button onClick={() => resetGame()} variant="primary">
+            Нова гра
+          </Button>
+          <Button
+            onClick={handleSurrender}
+            variant="secondary"
+            disabled={!gameStatus.isGameActive || showEndDialog}
+          >
+            Здатися
+          </Button>
+          <Button onClick={() => navigate("/")} variant="outline">
+            Головне меню
+          </Button>
+          <Button onClick={() => navigate("/stats")} variant="dark">
+            Таблиця результатів
+          </Button>
+        </div>
+
+        <GameEndDialog
+          isOpen={showEndDialog}
+          onClose={handleViewResults}
+          result={gameResult}
+          onNewGame={handleNewGame}
+          onMainMenu={handleMainMenu}
+        />
+      </div>
+    </Layout>
   );
 };
 
