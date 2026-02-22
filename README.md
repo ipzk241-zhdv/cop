@@ -24,6 +24,16 @@ Here are the primary scripts you can use to interact with the project environmen
 
 This project is distributed under the terms defined in the [MIT License](./LICENSE) file located in the root directory of this repository.
 
+### Third-Party Licenses
+
+This project incorporates components from several open-source libraries. Each library is used under its respective license:
+
+- Apache-licensed components: Use is governed by the Apache License 2.0.
+- Creative Commons (CC-BY): Any assets used are attributed to their respective creators.
+
+Full license texts for dependencies can be found in the `node_modules` directory of this project after executing `npm i`.
+Additional [Dependency Report](./license-report.txt) is also available.
+
 # Author
 
 Developed by Zherebtsov Dmytro IPZk-24-1
