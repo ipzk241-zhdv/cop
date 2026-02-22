@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: components/game/SettingsForm.jsx</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: components/game/SettingsForm.jsx</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/** @module SettingsForm */
+import { useEffect } from "react";
+import { useForm, useWatch } from "react-hook-form";
+import Button from "../ui/Button";
+import { useSettingsStore } from "../../stores/useSettingsStore";
+import "./SettingsForm.css";
+
+/**
+ * Form component for managing game configuration like board size and winning rules.
+ * @param {Object} props - Component properties.
+ * @param {Function} props.onClose - Callback to close the settings view.
+ * @returns {JSX.Element} A form synchronized with the settings store.
+ */
+const SettingsForm = ({ onClose }) => {
+    const { boardSize, winningLength, setSettings } = useSettingsStore();
+
+    const {
+        register,
+        handleSubmit,
+        control,
+        setValue,
+        formState: { errors },
+    } = useForm({
+        defaultValues: {
+            boardSize,
+            winningLength,
+        },
+    });
+
+    /**
+     * @name formBoardSize
+     * @type {number}
+     * @description Hook watching the 'boardSize' field in the form.
+     * @inner
+     */
+    const formBoardSize = useWatch({
+        control,
+        name: "boardSize",
+        defaultValue: boardSize,
+    });
+
+    /**
+     * @name validationEffect
+     * @description Effect hook to ensure winning length doesn't exceed board size.
+     * @inner
+     */
+    useEffect(() => {
+        const currentBoardSize = parseInt(formBoardSize) || boardSize;
+        const currentWinningLength = parseInt(winningLength) || winningLength;
+
+        if (currentWinningLength > currentBoardSize) {
+            setValue("winningLength", currentBoardSize);
+        }
+    }, [formBoardSize, winningLength, setValue, boardSize]);
+
+    /**
+     * Handles form submission and updates the global settings store.
+     * @param {Object} data - Form data containing boardSize and winningLength.
+     */
+    const onSubmit = (data) => {
+        setSettings({
+            boardSize: parseInt(data.boardSize),
+            winningLength: parseInt(data.winningLength),
+        });
+        onClose();
+    };
+
+    const getMaxWinningLength = () => {
+        return parseInt(formBoardSize) || boardSize;
+    };
+
+    const maxWinningLength = getMaxWinningLength();
+
+    return (
+        &lt;form onSubmit={handleSubmit(onSubmit)} className="settings-form">
+            &lt;h2>Налаштування гри&lt;/h2>
+
+            &lt;div className="form-group">
+                &lt;label htmlFor="boardSize">Розмір поля:&lt;/label>
+                &lt;select
+                    id="boardSize"
+                    {...register("boardSize", {
+                        required: "Оберіть розмір поля",
+                        min: { value: 3, message: "Мінімальний розмір - 3" },
+                        max: { value: 10, message: "Максимальний розмір - 10" },
+                    })}
+                >
+                    &lt;option value={3}>3x3&lt;/option>
+                    &lt;option value={4}>4x4&lt;/option>
+                    &lt;option value={5}>5x5&lt;/option>
+                    &lt;option value={6}>6x6&lt;/option>
+                    &lt;option value={7}>7x7&lt;/option>
+                    &lt;option value={8}>8x8&lt;/option>
+                    &lt;option value={9}>9x9&lt;/option>
+                    &lt;option value={10}>10x10&lt;/option>
+                &lt;/select>
+                {errors.boardSize &amp;&amp; (
+                    &lt;span className="error">{errors.boardSize.message}&lt;/span>
+                )}
+            &lt;/div>
+
+            &lt;div className="form-group">
+                &lt;label htmlFor="winningLength">
+                    Умова перемоги (символів поспіль):
+                &lt;/label>
+                &lt;input
+                    type="number"
+                    id="winningLength"
+                    min="3"
+                    max={maxWinningLength}
+                    {...register("winningLength", {
+                        required: "Введіть умову перемоги",
+                        min: {
+                            value: 3,
+                            message: "Мінімум 3 символи",
+                        },
+                        max: {
+                            value: maxWinningLength,
+                            message: `Максимум ${maxWinningLength} символів для поля ${maxWinningLength}x${maxWinningLength}`,
+                        },
+                        validate: {
+                            notGreaterThanBoard: (value) =>
+                                parseInt(value) &lt;= maxWinningLength ||
+                                `Умова перемоги не може бути більшою за розмір поля`,
+                        },
+                    })}
+                />
+                {errors.winningLength &amp;&amp; (
+                    &lt;span className="error">
+                        {errors.winningLength.message}
+                    &lt;/span>
+                )}
+            &lt;/div>
+
+            &lt;div className="form-actions">
+                &lt;Button type="submit" variant="primary">
+                    Зберегти
+                &lt;/Button>
+                &lt;Button type="button" onClick={onClose} variant="secondary">
+                    Скасувати
+                &lt;/Button>
+            &lt;/div>
+        &lt;/form>
+    );
+};
+
+export default SettingsForm;
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-Board.html">Board</a></li><li><a href="module-Cell.html">Cell</a></li><li><a href="module-CookiePopup.html">CookiePopup</a></li><li><a href="module-GameEndDialog.html">GameEndDialog</a></li><li><a href="module-GamePage.html">GamePage</a></li><li><a href="module-ResultPage.html">ResultPage</a></li><li><a href="module-SettingsForm.html">SettingsForm</a></li><li><a href="module-StartPage.html">StartPage</a></li><li><a href="module-StatsPage.html">StatsPage</a></li><li><a href="module-useGame.html">useGame</a></li><li><a href="module-useGameSettings.html">useGameSettings</a></li></ul><h3>Global</h3><ul><li><a href="global.html#Button">Button</a></li><li><a href="global.html#Header">Header</a></li><li><a href="global.html#Layout">Layout</a></li><li><a href="global.html#Modal">Modal</a></li><li><a href="global.html">bodyScrollEffect</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.5</a> on Sun Feb 22 2026 20:34:04 GMT+0200 (за східноєвропейським стандартним часом)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

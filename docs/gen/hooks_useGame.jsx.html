@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: hooks/useGame.jsx</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: hooks/useGame.jsx</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/** @module useGame */
+import { useState, useCallback, useEffect } from "react";
+
+/**
+ * Custom hook to manage Tic-Tac-Toe game logic.
+ * Handles board state, move validation, win detection, and draw conditions.
+ * * @param {number} [boardSize=3] - The dimensions of the square board.
+ * @param {number} [winningLength=3] - The number of marks in a row required to win.
+ * @returns {Object} Game state and control functions.
+ */
+export const useGame = (boardSize = 3, winningLength = 3) => {
+    /**
+     * @name board
+     * @type {Array&lt;Array&lt;string|null>>}
+     * @description 2D array representing the current state of the game board.
+     * @inner
+     */
+    const [board, setBoard] = useState(createEmptyBoard(boardSize));
+
+    /**
+     * @name currentPlayer
+     * @type {string}
+     * @description The player whose turn it is ("X" or "O").
+     * @inner
+     */
+    const [currentPlayer, setCurrentPlayer] = useState("X");
+
+    /**
+     * Checks if a move at the specified coordinates results in a win.
+     * @function
+     * @param {Array&lt;Array&lt;string|null>>} board - The current board to check.
+     * @param {number} row - Row index of the latest move.
+     * @param {number} col - Column index of the latest move.
+     * @returns {boolean} True if the move is a winning move.
+     */
+    const [winner, setWinner] = useState(null);
+    const [isDraw, setIsDraw] = useState(false);
+    const [movesCount, setMovesCount] = useState(0);
+
+    /**
+     * @function createEmptyBoard
+     * @param {number} size - Height and width of the board
+     * @returns
+     */
+    function createEmptyBoard(size) {
+        return Array(size)
+            .fill()
+            .map(() => Array(size).fill(null));
+    }
+
+    useEffect(() => {
+        resetGame();
+    }, [boardSize]);
+
+    /**
+     * Checks if a move at the specified coordinates results in a win.
+     * @function checkWinner
+     * @param {Array&lt;Array&lt;string|null>>} board - The current board to check.
+     * @param {number} row - Row index of the latest move.
+     * @param {number} col - Column index of the latest move.
+     * @returns {boolean} True if the move is a winning move.
+     */
+    const checkWinner = useCallback(
+        (board, row, col) => {
+            const player = board[row][col];
+            if (!player) return false;
+
+            const size = board.length;
+            const directions = [
+                [0, 1], // горизонталь
+                [1, 0], // вертикаль
+                [1, 1], // діагональ \
+                [1, -1], // діагональ /
+            ];
+
+            for (const [dx, dy] of directions) {
+                let count = 1;
+
+                for (let i = 1; i &lt; winningLength; i++) {
+                    const newRow = row + dx * i;
+                    const newCol = col + dy * i;
+                    if (
+                        newRow >= 0 &amp;&amp;
+                        newRow &lt; size &amp;&amp;
+                        newCol >= 0 &amp;&amp;
+                        newCol &lt; size &amp;&amp;
+                        board[newRow][newCol] === player
+                    ) {
+                        count++;
+                    } else {
+                        break;
+                    }
+                }
+
+                for (let i = 1; i &lt; winningLength; i++) {
+                    const newRow = row - dx * i;
+                    const newCol = col - dy * i;
+                    if (
+                        newRow >= 0 &amp;&amp;
+                        newRow &lt; size &amp;&amp;
+                        newCol >= 0 &amp;&amp;
+                        newCol &lt; size &amp;&amp;
+                        board[newRow][newCol] === player
+                    ) {
+                        count++;
+                    } else {
+                        break;
+                    }
+                }
+
+                if (count >= winningLength) {
+                    return true;
+                }
+            }
+
+            return false;
+        },
+        [winningLength],
+    );
+
+    /**
+     * Executes a move at the specified coordinates.
+     * @function makeMove
+     * @param {number} row - Target row index.
+     * @param {number} col - Target column index.
+     * @returns {boolean} True if the move was successfully processed.
+     */
+    const makeMove = useCallback(
+        (row, col) => {
+            if (board[row][col] || winner || isDraw) {
+                return false;
+            }
+
+            const newBoard = board.map((r) => [...r]);
+            newBoard[row][col] = currentPlayer;
+            setBoard(newBoard);
+
+            const newMovesCount = movesCount + 1;
+            setMovesCount(newMovesCount);
+
+            if (checkWinner(newBoard, row, col)) {
+                setWinner(currentPlayer);
+                return true;
+            }
+
+            if (newMovesCount === boardSize * boardSize) {
+                setIsDraw(true);
+                return true;
+            }
+
+            setCurrentPlayer(currentPlayer === "X" ? "O" : "X");
+            return true;
+        },
+        [
+            board,
+            currentPlayer,
+            winner,
+            isDraw,
+            movesCount,
+            boardSize,
+            checkWinner,
+        ],
+    );
+
+    /**
+     * Resets the game state to its initial values.
+     * @function resetGame
+     */
+    const resetGame = useCallback(() => {
+        setBoard(createEmptyBoard(boardSize));
+        setCurrentPlayer("X");
+        setWinner(null);
+        setIsDraw(false);
+        setMovesCount(0);
+    }, [boardSize]);
+
+    const gameStatus = {
+        isGameActive: !winner &amp;&amp; !isDraw,
+        isGameFinished: winner || isDraw,
+    };
+
+    return {
+        board,
+        currentPlayer,
+        winner,
+        isDraw,
+        movesCount,
+        gameStatus,
+
+        makeMove,
+        resetGame,
+    };
+};
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-Board.html">Board</a></li><li><a href="module-Cell.html">Cell</a></li><li><a href="module-CookiePopup.html">CookiePopup</a></li><li><a href="module-GameEndDialog.html">GameEndDialog</a></li><li><a href="module-GamePage.html">GamePage</a></li><li><a href="module-ResultPage.html">ResultPage</a></li><li><a href="module-SettingsForm.html">SettingsForm</a></li><li><a href="module-StartPage.html">StartPage</a></li><li><a href="module-StatsPage.html">StatsPage</a></li><li><a href="module-useGame.html">useGame</a></li><li><a href="module-useGameSettings.html">useGameSettings</a></li></ul><h3>Global</h3><ul><li><a href="global.html#Button">Button</a></li><li><a href="global.html#Header">Header</a></li><li><a href="global.html#Layout">Layout</a></li><li><a href="global.html#Modal">Modal</a></li><li><a href="global.html">bodyScrollEffect</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.5</a> on Sun Feb 22 2026 20:34:04 GMT+0200 (за східноєвропейським стандартним часом)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

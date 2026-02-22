@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: pages/ResultPage/ResultPage.jsx</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: pages/ResultPage/ResultPage.jsx</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/** @module ResultPage */
+import { useNavigate, useParams } from "react-router-dom";
+import Layout from "../../components/ui/Layout";
+import Button from "../../components/ui/Button";
+import Board from "../../components/game/Board";
+import { useResultsStore } from "../../stores/useResultsStore";
+import "./ResultPage.css";
+
+/**
+ * Component that displays detailed information about a specific game result.
+ * Shows the final board state, moves count, and game duration.
+ * @returns {JSX.Element} The result details view.
+ */
+const ResultPage = () => {
+    const { userId } = useParams();
+    const navigate = useNavigate();
+    const { results } = useResultsStore();
+
+    /**
+     * Retrieves the most recent game data for the current user from the store.
+     * @function getLatestGame
+     * @returns {Object|null} Game result object.
+     */
+    const getLatestGame = () => {
+        if (!userId) return null;
+
+        const userGames = results.filter(
+            (result) => result.playerId === userId,
+        );
+        if (userGames.length === 0) return null;
+
+        return userGames.sort((a, b) => b.timestamp - a.timestamp)[0];
+    };
+
+    const latestGame = getLatestGame();
+
+    /**
+     * Determines the appropriate UI message based on win/draw/surrender status.
+     * @function getResultMessage
+     * @returns {string} Localized result message.
+     */
+    const getResultMessage = () => {
+        if (!latestGame) return "Гра завершена";
+
+        if (latestGame.result === "draw") return "🤝 Нічия!";
+
+        if (latestGame.reason === "surrender") {
+            return `🏳️ Гравець ${latestGame.winner} переміг через здачу суперника`;
+        }
+
+        return `🎉 Переміг гравець ${latestGame.winner}!`;
+    };
+
+    const createEmptyBoard = (size) => {
+        return Array(size)
+            .fill()
+            .map(() => Array(size).fill(null));
+    };
+
+    const getBoard = () => {
+        if (latestGame &amp;&amp; latestGame.board) {
+            return latestGame.board;
+        }
+        return createEmptyBoard(latestGame?.boardSize || 3);
+    };
+
+    /**
+     * Navigates the user back to a new game session using the current ID.
+     */
+    const handlePlayAgain = () => {
+        if (userId) {
+            navigate(`/game/${userId}`);
+        } else {
+            navigate("/game");
+        }
+    };
+
+    return (
+        &lt;Layout>
+            &lt;div className="page result-page">
+                &lt;h1>Результат гри&lt;/h1>
+                {userId &amp;&amp; &lt;p className="user-id">ID гравця: {userId}&lt;/p>}
+
+                &lt;div className="result-content">
+                    &lt;div className="result-message">{getResultMessage()}&lt;/div>
+
+                    &lt;div className="game-stats">
+                        {latestGame &amp;&amp; (
+                            &lt;div className="stats-info">
+                                &lt;p>
+                                    Розмір поля: {latestGame.boardSize}x
+                                    {latestGame.boardSize}
+                                &lt;/p>
+                                &lt;p>Кількість ходів: {latestGame.movesCount}&lt;/p>
+                                &lt;p>
+                                    Умова перемоги: {latestGame.winningLength} в
+                                    ряд
+                                &lt;/p>
+                                {latestGame.duration &amp;&amp; (
+                                    &lt;p>
+                                        Тривалість гри:{" "}
+                                        {Math.floor(latestGame.duration / 1000)}
+                                        с
+                                    &lt;/p>
+                                )}
+                            &lt;/div>
+                        )}
+                    &lt;/div>
+
+                    &lt;div className="final-board-container">
+                        &lt;Board
+                            board={getBoard()}
+                            onCellClick={() => {}}
+                            disabled={true}
+                            isResultView={true}
+                        />
+                    &lt;/div>
+                &lt;/div>
+
+                &lt;div className="result-actions">
+                    &lt;Button onClick={handlePlayAgain} variant="primary">
+                        Грати знову
+                    &lt;/Button>
+                    &lt;Button
+                        onClick={() => navigate("/stats")}
+                        variant="secondary"
+                    >
+                        Переглянути статистику
+                    &lt;/Button>
+                    &lt;Button onClick={() => navigate("/")} variant="outline">
+                        Головне меню
+                    &lt;/Button>
+                &lt;/div>
+            &lt;/div>
+        &lt;/Layout>
+    );
+};
+
+export default ResultPage;
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-Board.html">Board</a></li><li><a href="module-Cell.html">Cell</a></li><li><a href="module-CookiePopup.html">CookiePopup</a></li><li><a href="module-GameEndDialog.html">GameEndDialog</a></li><li><a href="module-GamePage.html">GamePage</a></li><li><a href="module-ResultPage.html">ResultPage</a></li><li><a href="module-SettingsForm.html">SettingsForm</a></li><li><a href="module-StartPage.html">StartPage</a></li><li><a href="module-StatsPage.html">StatsPage</a></li><li><a href="module-useGame.html">useGame</a></li><li><a href="module-useGameSettings.html">useGameSettings</a></li></ul><h3>Global</h3><ul><li><a href="global.html#Button">Button</a></li><li><a href="global.html#Header">Header</a></li><li><a href="global.html#Layout">Layout</a></li><li><a href="global.html#Modal">Modal</a></li><li><a href="global.html">bodyScrollEffect</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.5</a> on Sun Feb 22 2026 20:34:04 GMT+0200 (за східноєвропейським стандартним часом)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

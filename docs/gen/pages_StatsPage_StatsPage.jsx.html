@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: pages/StatsPage/StatsPage.jsx</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: pages/StatsPage/StatsPage.jsx</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/** @module StatsPage */
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import Layout from "../../components/ui/Layout";
+import Button from "../../components/ui/Button";
+import { useResultsStore } from "../../stores/useResultsStore";
+import "./StatsPage.css";
+
+/**
+ * Statistics page component that displays a history of all games played.
+ * Includes filtering by result type and overall performance metrics.
+ * @returns {JSX.Element} The stats dashboard.
+ */
+const StatsPage = () => {
+    const navigate = useNavigate();
+    const { results, getStats, clearResults } = useResultsStore();
+    /**
+     * @name filterState
+     * @type {string}
+     * @description State hook for filtering the results table ('all', 'win', 'draw').
+     * @inner
+     */
+    const [filter, setFilter] = useState("all");
+
+    const stats = getStats();
+
+    const filteredResults =
+        filter === "all"
+            ? results
+            : results.filter((result) => result.result === filter);
+
+    /**
+     * Formats game duration from milliseconds to a MM:SS string.
+     * @function formatDuration
+     * @param {number} ms - Duration in milliseconds.
+     * @returns {string} Formatted time string.
+     */
+    const formatDuration = (ms) => {
+        const seconds = Math.floor(ms / 1000);
+        const minutes = Math.floor(seconds / 60);
+        return `${minutes}:${(seconds % 60).toString().padStart(2, "0")}`;
+    };
+
+    /**
+     * Converts a timestamp into a localized date-time string.
+     * @function formatDate
+     * @param {number} timestamp - The Unix timestamp.
+     * @returns {string} Formatted date string (uk-UA).
+     */
+    const formatDate = (timestamp) => {
+        return new Date(timestamp).toLocaleDateString("uk-UA", {
+            day: "2-digit",
+            month: "2-digit",
+            year: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+        });
+    };
+
+    /**
+     * Returns a UI badge element representing the game outcome.
+     * @function getResultBadge
+     * @param {string} result - The result type ('win', 'lose', 'draw').
+     * @returns {JSX.Element} Badge component.
+     */
+    const getResultBadge = (result) => {
+        const badges = {
+            win: { text: "Виграш", class: "badge-win" },
+            lose: { text: "Програш", class: "badge-lose" },
+            draw: { text: "Нічия", class: "badge-draw" },
+        };
+
+        const badge = badges[result];
+        return &lt;span className={`badge ${badge.class}`}>{badge.text}&lt;/span>;
+    };
+
+    const generateUserId = () => {
+        return `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    };
+
+    const handleStartGame = () => {
+        const userId = generateUserId();
+        navigate(`/game/${userId}`);
+    };
+
+    return (
+        &lt;Layout>
+            &lt;div className="page stats-page">
+                &lt;div className="stats-header">
+                    &lt;h1>Статистика ігор&lt;/h1>
+                    &lt;Button onClick={() => navigate("/")} variant="outline">
+                        Головне меню
+                    &lt;/Button>
+                &lt;/div>
+
+                &lt;div className="stats-container">
+                    &lt;div className="stat-card">
+                        &lt;h3>Всього ігор&lt;/h3>
+                        &lt;span className="stat-value">{stats.totalGames}&lt;/span>
+                    &lt;/div>
+                    &lt;div className="stat-card">
+                        &lt;h3>Виграші&lt;/h3>
+                        &lt;span className="stat-value stat-win">
+                            {stats.wins}
+                        &lt;/span>
+                    &lt;/div>
+                    &lt;div className="stat-card">
+                        &lt;h3>Нічиї&lt;/h3>
+                        &lt;span className="stat-value stat-draw">
+                            {stats.draws}
+                        &lt;/span>
+                    &lt;/div>
+                &lt;/div>
+
+                &lt;div className="filters">
+                    &lt;Button
+                        onClick={() => setFilter("all")}
+                        variant={filter === "all" ? "primary" : "outline"}
+                    >
+                        Всі ігри
+                    &lt;/Button>
+                    &lt;Button
+                        onClick={() => setFilter("win")}
+                        variant={filter === "win" ? "primary" : "outline"}
+                    >
+                        Виграші
+                    &lt;/Button>
+                    &lt;Button
+                        onClick={() => setFilter("draw")}
+                        variant={filter === "draw" ? "primary" : "outline"}
+                    >
+                        Нічиї
+                    &lt;/Button>
+                &lt;/div>
+
+                &lt;div className="table-container">
+                    {filteredResults.length > 0 ? (
+                        &lt;table className="stats-table">
+                            &lt;thead>
+                                &lt;tr>
+                                    &lt;th>Дата&lt;/th>
+                                    &lt;th>Результат&lt;/th>
+                                    &lt;th>Гравець&lt;/th>
+                                    &lt;th>Поле&lt;/th>
+                                    &lt;th>Ходів&lt;/th>
+                                    &lt;th>Час&lt;/th>
+                                    &lt;th>Переможець&lt;/th>
+                                &lt;/tr>
+                            &lt;/thead>
+                            &lt;tbody>
+                                {filteredResults.map((game) => (
+                                    &lt;tr key={game.id}>
+                                        &lt;td>{formatDate(game.timestamp)}&lt;/td>
+                                        &lt;td>{getResultBadge(game.result)}&lt;/td>
+                                        &lt;td className="player-id">
+                                            {game.playerId}
+                                        &lt;/td>
+                                        &lt;td>
+                                            {game.boardSize}x{game.boardSize}
+                                        &lt;/td>
+                                        &lt;td>{game.movesCount}&lt;/td>
+                                        &lt;td>{formatDuration(game.duration)}&lt;/td>
+                                        &lt;td>{game.winner || "-"}&lt;/td>
+                                    &lt;/tr>
+                                ))}
+                            &lt;/tbody>
+                        &lt;/table>
+                    ) : (
+                        &lt;div className="no-results">
+                            &lt;p>Немає результатів для відображення&lt;/p>
+                            &lt;Button onClick={handleStartGame} variant="primary">
+                                Зіграти гру
+                            &lt;/Button>
+                        &lt;/div>
+                    )}
+                &lt;/div>
+
+                {results.length > 0 &amp;&amp; (
+                    &lt;div className="clear-section">
+                        &lt;Button onClick={clearResults} variant="dark">
+                            Очистити історію
+                        &lt;/Button>
+                    &lt;/div>
+                )}
+            &lt;/div>
+        &lt;/Layout>
+    );
+};
+
+export default StatsPage;
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-Board.html">Board</a></li><li><a href="module-Cell.html">Cell</a></li><li><a href="module-CookiePopup.html">CookiePopup</a></li><li><a href="module-GameEndDialog.html">GameEndDialog</a></li><li><a href="module-GamePage.html">GamePage</a></li><li><a href="module-ResultPage.html">ResultPage</a></li><li><a href="module-SettingsForm.html">SettingsForm</a></li><li><a href="module-StartPage.html">StartPage</a></li><li><a href="module-StatsPage.html">StatsPage</a></li><li><a href="module-useGame.html">useGame</a></li><li><a href="module-useGameSettings.html">useGameSettings</a></li></ul><h3>Global</h3><ul><li><a href="global.html#Button">Button</a></li><li><a href="global.html#Header">Header</a></li><li><a href="global.html#Layout">Layout</a></li><li><a href="global.html#Modal">Modal</a></li><li><a href="global.html">bodyScrollEffect</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.5</a> on Sun Feb 22 2026 20:34:04 GMT+0200 (за східноєвропейським стандартним часом)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

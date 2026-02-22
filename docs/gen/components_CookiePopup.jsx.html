@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: components/CookiePopup.jsx</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: components/CookiePopup.jsx</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/** @module CookiePopup */
+import React, { useState, useEffect } from "react";
+import Cookies from "js-cookie";
+
+/**
+ * Component for GDPR consent.
+ * Uses {@link module:CookiePopup~useState|useState} and {@link module:CookiePopup~useEffect|useEffect}.
+ * @returns {JSX.Element|null}
+ */
+const CookiePopup = () => {
+    /**
+     * @name isVisible
+     * @type {boolean}
+     * @description State hook to control the visibility of the popup.
+     * @inner
+     */
+    const [isVisible, setIsVisible] = useState(false);
+
+    /**
+     * @name preferences
+     * @type {Object}
+     * @property {boolean} necessary - Required cookies (always true).
+     * @property {boolean} analytics - User choice for analytics.
+     * @description State hook to store granular cookie consent choices.
+     * @inner
+     */
+    const [preferences, setPreferences] = useState({
+        necessary: true,
+        analytics: false,
+    });
+
+    /**
+     * @name checkConsentEffect
+     * @description Effect hook that checks for existing consent on component mount.
+     * @inner
+     */
+    useEffect(() => {
+        const consent = Cookies.get("user-cookie-consent");
+        if (!consent) {
+            setIsVisible(true);
+        }
+    }, []);
+
+    /**
+     * Saves current user preferences to cookies and hides the popup.
+     */
+    const handleSave = () => {
+        Cookies.set("user-cookie-consent", JSON.stringify(preferences), {
+            expires: 365,
+        });
+        setIsVisible(false);
+    };
+
+    /**
+     * Accepts all cookie categories, saves the state, and hides the popup.
+     */
+    const handleAcceptAll = () => {
+        const allIn = { necessary: true, analytics: true };
+        Cookies.set("user-cookie-consent", JSON.stringify(allIn), {
+            expires: 365,
+        });
+        setIsVisible(false);
+    };
+
+    if (!isVisible) return null;
+
+    return (
+        &lt;div style={styles.overlay}>
+            &lt;div style={styles.modal}>
+                &lt;h3>Налаштування файлів Cookie&lt;/h3>
+                &lt;p>Згідно з GDPR, ви можете обрати типи файлів cookie:&lt;/p>
+
+                &lt;div style={styles.option}>
+                    &lt;label>
+                        &lt;input type="checkbox" checked disabled />
+                        &lt;strong> Обов'язкові&lt;/strong>
+                    &lt;/label>
+                &lt;/div>
+
+                &lt;div style={styles.option}>
+                    &lt;label>
+                        &lt;input
+                            type="checkbox"
+                            checked={preferences.analytics}
+                            onChange={(e) =>
+                                setPreferences({
+                                    ...preferences,
+                                    analytics: e.target.checked,
+                                })
+                            }
+                        />
+                        &lt;strong> Аналітичні&lt;/strong>
+                    &lt;/label>
+                &lt;/div>
+
+                &lt;div style={styles.buttonGroup}>
+                    &lt;button onClick={handleSave} style={styles.btnSecondary}>
+                        Зберегти
+                    &lt;/button>
+                    &lt;button onClick={handleAcceptAll} style={styles.btnPrimary}>
+                        Прийняти всі
+                    &lt;/button>
+                &lt;/div>
+            &lt;/div>
+        &lt;/div>
+    );
+};
+
+const styles = {
+    overlay: {
+        position: "fixed",
+        bottom: "20px",
+        left: "20px",
+        right: "20px",
+        zIndex: 2000, // Вищий ніж у Header та Board
+        display: "flex",
+        justifyContent: "center",
+    },
+    modal: {
+        background: "white",
+        padding: "20px",
+        borderRadius: "8px",
+        boxShadow: "0 4px 15px rgba(0,0,0,0.3)",
+        maxWidth: "500px",
+        color: "#333",
+    },
+    buttonGroup: { display: "flex", gap: "10px", marginTop: "15px" },
+    btnPrimary: {
+        backgroundColor: "#667eea",
+        color: "white",
+        border: "none",
+        padding: "8px 16px",
+        borderRadius: "4px",
+        cursor: "pointer",
+    },
+    btnSecondary: {
+        backgroundColor: "#6c757d",
+        color: "white",
+        border: "none",
+        padding: "8px 16px",
+        borderRadius: "4px",
+        cursor: "pointer",
+    },
+};
+
+export default CookiePopup;
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-Board.html">Board</a></li><li><a href="module-Cell.html">Cell</a></li><li><a href="module-CookiePopup.html">CookiePopup</a></li><li><a href="module-GameEndDialog.html">GameEndDialog</a></li><li><a href="module-GamePage.html">GamePage</a></li><li><a href="module-ResultPage.html">ResultPage</a></li><li><a href="module-SettingsForm.html">SettingsForm</a></li><li><a href="module-StartPage.html">StartPage</a></li><li><a href="module-StatsPage.html">StatsPage</a></li><li><a href="module-useGame.html">useGame</a></li><li><a href="module-useGameSettings.html">useGameSettings</a></li></ul><h3>Global</h3><ul><li><a href="global.html#Button">Button</a></li><li><a href="global.html#Header">Header</a></li><li><a href="global.html#Layout">Layout</a></li><li><a href="global.html#Modal">Modal</a></li><li><a href="global.html">bodyScrollEffect</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.5</a> on Sun Feb 22 2026 20:34:04 GMT+0200 (за східноєвропейським стандартним часом)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

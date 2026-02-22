@@ -1,33 +1,28 @@
-import { useState } from "react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import StartPage from "../pages/StartPage/StartPage";
 import GamePage from "../pages/GamePage/GamePage";
 import ResultPage from "../pages/ResultPage/ResultPage";
+import StatsPage from "../pages/StatsPage/StatsPage";
+import CookiePopup from "../components/CookiePopup";
 import "./App.css";
 
 function App() {
-  const [currentPage, setCurrentPage] = useState("start");
-  const [gameResult, setGameResult] = useState(null);
+    return (
+        <Router>
+            <div className="app">
+                <Routes>
+                    <Route path="/" element={<StartPage />} />
+                    <Route path="/game" element={<GamePage />} />
+                    <Route path="/game/:userId" element={<GamePage />} />
+                    <Route path="/results" element={<ResultPage />} />
+                    <Route path="/results/:userId" element={<ResultPage />} />
+                    <Route path="/stats" element={<StatsPage />} />
+                </Routes>
 
-  const navigateTo = (page) => {
-    setCurrentPage(page);
-  };
-
-  const handleGameFinish = (result) => {
-    setGameResult(result);
-    setCurrentPage("results");
-  };
-
-  return (
-    <div className="app">
-      {currentPage === "start" && <StartPage onNavigate={navigateTo} />}
-      {currentPage === "game" && (
-        <GamePage onNavigate={navigateTo} onGameFinish={handleGameFinish} />
-      )}
-      {currentPage === "results" && (
-        <ResultPage onNavigate={navigateTo} result={gameResult} />
-      )}
-    </div>
-  );
+                <CookiePopup />
+            </div>
+        </Router>
+    );
 }
 
 export default App;
