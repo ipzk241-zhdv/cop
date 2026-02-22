@@ -1,4 +1,5 @@
 import Button from "./Button";
+import "./Button.css";
 
 export default {
     title: "UI/Button",
@@ -16,22 +17,21 @@ export default {
 
 export const Primary = {
     args: {
-        children: "Start Game",
+        children: "Грати знову",
         variant: "primary",
     },
 };
 
 export const Secondary = {
     args: {
-        children: "Surrender",
+        children: "Статистика",
         variant: "secondary",
     },
 };
 
-export const Disabled = {
+export const Dark = {
     args: {
-        children: "Wait...",
-        variant: "primary",
-        disabled: true,
+        children: "Головне меню",
+        variant: "dark",
     },
 };
