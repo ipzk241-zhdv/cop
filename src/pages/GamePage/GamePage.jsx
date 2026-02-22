@@ -1,3 +1,4 @@
+/** @module GamePage */
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import Layout from "../../components/ui/Layout";
@@ -9,171 +10,204 @@ import { useSettingsStore } from "../../stores/useSettingsStore";
 import { useResultsStore } from "../../stores/useResultsStore";
 import "./GamePage.css";
 
+/**
+ * Main game page component that orchestrates the Tic-Tac-Toe gameplay.
+ * Manages game sessions, timer tracking, and integration with results/settings stores.
+ * @returns {JSX.Element} The rendered game screen.
+ */
 const GamePage = () => {
-  const { userId } = useParams();
-  const navigate = useNavigate();
+    const { userId } = useParams();
+    const navigate = useNavigate();
 
-  const { boardSize, winningLength } = useSettingsStore();
-  const { addResult } = useResultsStore();
+    const { boardSize, winningLength } = useSettingsStore();
+    const { addResult } = useResultsStore();
 
-  const [showEndDialog, setShowEndDialog] = useState(false);
-  const [gameResult, setGameResult] = useState(null);
-  const [finalGameState, setFinalGameState] = useState(null);
-  const [gameStartTime, setGameStartTime] = useState(Date.now());
+    /**
+     * @name gameStates
+     * @description Inner state hooks for managing dialog visibility and final game snapshots.
+     * @inner
+     */
+    const [showEndDialog, setShowEndDialog] = useState(false);
+    const [gameResult, setGameResult] = useState(null);
+    const [finalGameState, setFinalGameState] = useState(null);
+    const [gameStartTime, setGameStartTime] = useState(Date.now());
 
-  const {
-    board,
-    currentPlayer,
-    winner,
-    isDraw,
-    gameStatus,
-    movesCount,
-    makeMove,
-    resetGame,
-  } = useGame(boardSize, winningLength);
-
-  useEffect(() => {
-    setGameStartTime(Date.now());
-  }, []);
-
-  useEffect(() => {
-    if (gameStatus.isGameFinished && !showEndDialog) {
-      const result = {
+    const {
+        board,
+        currentPlayer,
         winner,
         isDraw,
-        reason: winner ? "win" : "draw",
-      };
-      const state = {
-        board: JSON.parse(JSON.stringify(board)),
-        winner,
-        isDraw,
-      };
-      setGameResult(result);
-      setFinalGameState(state);
-      setShowEndDialog(true);
-    }
-  }, [gameStatus.isGameFinished, winner, isDraw, board, showEndDialog]);
+        gameStatus,
+        movesCount,
+        makeMove,
+        resetGame,
+    } = useGame(boardSize, winningLength);
 
-  const handleCellClick = (row, col) => {
-    if (gameStatus.isGameActive) {
-      makeMove(row, col);
-    }
-  };
+    useEffect(() => {
+        setGameStartTime(Date.now());
+    }, []);
 
-  const handleNewGame = () => {
-    resetGame();
-    setShowEndDialog(false);
-    setGameResult(null);
-    setFinalGameState(null);
-    setGameStartTime(Date.now());
-  };
+    /**
+     * @name finishEffect
+     * @description Effect hook that triggers the end-game dialog when a win or draw is detected.
+     * @inner
+     */
+    useEffect(() => {
+        if (gameStatus.isGameFinished && !showEndDialog) {
+            const result = {
+                winner,
+                isDraw,
+                reason: winner ? "win" : "draw",
+            };
+            const state = {
+                board: JSON.parse(JSON.stringify(board)),
+                winner,
+                isDraw,
+            };
+            setGameResult(result);
+            setFinalGameState(state);
+            setShowEndDialog(true);
+        }
+    }, [gameStatus.isGameFinished, winner, isDraw, board, showEndDialog]);
 
-  const handleSurrender = () => {
-    const result = {
-      winner: currentPlayer === "X" ? "O" : "X",
-      isDraw: false,
-      reason: "surrender",
+    /**
+     * Handles cell interaction during active gameplay.
+     * @function handleCellClick
+     * @param {number} row - Row index.
+     * @param {number} col - Column index.
+     */
+    const handleCellClick = (row, col) => {
+        if (gameStatus.isGameActive) {
+            makeMove(row, col);
+        }
     };
-    const state = {
-      board: JSON.parse(JSON.stringify(board)),
-      winner: result.winner,
-      isDraw: false,
+
+    const handleNewGame = () => {
+        resetGame();
+        setShowEndDialog(false);
+        setGameResult(null);
+        setFinalGameState(null);
+        setGameStartTime(Date.now());
     };
-    setGameResult(result);
-    setFinalGameState(state);
-    setShowEndDialog(true);
-  };
 
-  const handleViewResults = () => {
-    setShowEndDialog(false);
+    const handleSurrender = () => {
+        const result = {
+            winner: currentPlayer === "X" ? "O" : "X",
+            isDraw: false,
+            reason: "surrender",
+        };
+        const state = {
+            board: JSON.parse(JSON.stringify(board)),
+            winner: result.winner,
+            isDraw: false,
+        };
+        setGameResult(result);
+        setFinalGameState(state);
+        setShowEndDialog(true);
+    };
 
-    if (gameResult && finalGameState) {
-      const gameDuration = Date.now() - gameStartTime;
+    /**
+     * Finalizes the game session, calculates duration, and persists results to the store.
+     * @function handleViewResults
+     */
+    const handleViewResults = () => {
+        setShowEndDialog(false);
 
-      // Спрощена логіка - зберігаємо тільки виграші та нічиї
-      const resultType = gameResult.isDraw ? "draw" : "win";
+        if (gameResult && finalGameState) {
+            const gameDuration = Date.now() - gameStartTime;
 
-      const currentUserId = userId || generateUserId();
+            // Спрощена логіка - зберігаємо тільки виграші та нічиї
+            const resultType = gameResult.isDraw ? "draw" : "win";
 
-      addResult({
-        playerId: currentUserId,
-        movesCount: movesCount,
-        result: resultType,
-        winner: gameResult.winner,
-        boardSize: boardSize,
-        winningLength: winningLength,
-        duration: gameDuration,
-        board: finalGameState.board,
-        reason: gameResult.reason,
-      });
+            const currentUserId = userId || generateUserId();
 
-      navigate(`/results/${currentUserId}`);
-    }
-  };
+            addResult({
+                playerId: currentUserId,
+                movesCount: movesCount,
+                result: resultType,
+                winner: gameResult.winner,
+                boardSize: boardSize,
+                winningLength: winningLength,
+                duration: gameDuration,
+                board: finalGameState.board,
+                reason: gameResult.reason,
+            });
 
-  const generateUserId = () => {
-    return `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-  };
+            navigate(`/results/${currentUserId}`);
+        }
+    };
 
-  const handleMainMenu = () => {
-    setShowEndDialog(false);
-    navigate("/");
-  };
+    /**
+     * Helper to generate a unique session ID for the player.
+     * @returns {string} Unique user identifier.
+     */
+    const generateUserId = () => {
+        return `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    };
 
-  return (
-    <Layout>
-      <div className="page game-page">
-        <div className="game-info">
-          <h2>
-            Поточний гравець:{" "}
-            <span className={`player-${currentPlayer}`}>{currentPlayer}</span>
-          </h2>
-          <p className="game-settings-info">
-            Поле: {boardSize}x{boardSize} | Перемога: {winningLength} в ряд |
-            Ходів: {movesCount}
-          </p>
-          {userId && <p className="user-id">ID гравця: {userId}</p>}
-          {winner && (
-            <div className="winner-message">🎉 Переміг гравець {winner}!</div>
-          )}
-          {isDraw && <div className="draw-message">🤝 Нічия!</div>}
-        </div>
+    const handleMainMenu = () => {
+        setShowEndDialog(false);
+        navigate("/");
+    };
 
-        <Board
-          board={board}
-          onCellClick={handleCellClick}
-          disabled={!gameStatus.isGameActive || showEndDialog}
-        />
+    return (
+        <Layout>
+            <div className="page game-page">
+                <div className="game-info">
+                    <h2>
+                        Поточний гравець:{" "}
+                        <span className={`player-${currentPlayer}`}>
+                            {currentPlayer}
+                        </span>
+                    </h2>
+                    <p className="game-settings-info">
+                        Поле: {boardSize}x{boardSize} | Перемога:{" "}
+                        {winningLength} в ряд | Ходів: {movesCount}
+                    </p>
+                    {userId && <p className="user-id">ID гравця: {userId}</p>}
+                    {winner && (
+                        <div className="winner-message">
+                            🎉 Переміг гравець {winner}!
+                        </div>
+                    )}
+                    {isDraw && <div className="draw-message">🤝 Нічия!</div>}
+                </div>
 
-        <div className="game-controls">
-          <Button onClick={() => resetGame()} variant="primary">
-            Нова гра
-          </Button>
-          <Button
-            onClick={handleSurrender}
-            variant="secondary"
-            disabled={!gameStatus.isGameActive || showEndDialog}
-          >
-            Здатися
-          </Button>
-          <Button onClick={() => navigate("/")} variant="outline">
-            Головне меню
-          </Button>
-          <Button onClick={() => navigate("/stats")} variant="dark">
-            Таблиця результатів
-          </Button>
-        </div>
+                <Board
+                    board={board}
+                    onCellClick={handleCellClick}
+                    disabled={!gameStatus.isGameActive || showEndDialog}
+                />
 
-        <GameEndDialog
-          isOpen={showEndDialog}
-          onClose={handleViewResults}
-          result={gameResult}
-          onNewGame={handleNewGame}
-          onMainMenu={handleMainMenu}
-        />
-      </div>
-    </Layout>
-  );
+                <div className="game-controls">
+                    <Button onClick={() => resetGame()} variant="primary">
+                        Нова гра
+                    </Button>
+                    <Button
+                        onClick={handleSurrender}
+                        variant="secondary"
+                        disabled={!gameStatus.isGameActive || showEndDialog}
+                    >
+                        Здатися
+                    </Button>
+                    <Button onClick={() => navigate("/")} variant="outline">
+                        Головне меню
+                    </Button>
+                    <Button onClick={() => navigate("/stats")} variant="dark">
+                        Таблиця результатів
+                    </Button>
+                </div>
+
+                <GameEndDialog
+                    isOpen={showEndDialog}
+                    onClose={handleViewResults}
+                    result={gameResult}
+                    onNewGame={handleNewGame}
+                    onMainMenu={handleMainMenu}
+                />
+            </div>
+        </Layout>
+    );
 };
 
 export default GamePage;
