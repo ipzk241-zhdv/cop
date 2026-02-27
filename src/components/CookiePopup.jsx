@@ -67,18 +67,29 @@ const CookiePopup = () => {
     return (
         <div style={styles.overlay}>
             <div style={styles.modal}>
-                <h3>Налаштування файлів Cookie</h3>
-                <p>Згідно з GDPR, ви можете обрати типи файлів cookie:</p>
+                <h3 style={{ marginTop: 0 }}>Налаштування конфіденційності</h3>
+
+                <p style={styles.description}>
+                    Наш сайт використовує <strong>Cookie</strong> та{" "}
+                    <strong>LocalStorage</strong> для забезпечення стабільної
+                    роботи інтерфейсу. Всі технічні дані зберігаються виключно у
+                    вашому браузері, не передаються на сервер або третім особам
+                    і використовуються лише для функціонування вашої дошки.
+                </p>
 
                 <div style={styles.option}>
-                    <label>
+                    <label style={styles.label}>
                         <input type="checkbox" checked disabled />
-                        <strong> Обов'язкові</strong>
+                        <span>
+                            <strong>Технічно необхідні</strong> — зберігання
+                            стану в LocalStorage. Потрібні для роботи базових
+                            функцій сайту.
+                        </span>
                     </label>
                 </div>
 
                 <div style={styles.option}>
-                    <label>
+                    <label style={styles.label}>
                         <input
                             type="checkbox"
                             checked={preferences.analytics}
@@ -89,13 +100,16 @@ const CookiePopup = () => {
                                 })
                             }
                         />
-                        <strong> Аналітичні</strong>
+                        <span>
+                            <strong>Аналітичні</strong> — анонімні дані для
+                            покращення зручності користування інтерфейсом.
+                        </span>
                     </label>
                 </div>
 
                 <div style={styles.buttonGroup}>
                     <button onClick={handleSave} style={styles.btnSecondary}>
-                        Зберегти
+                        Зберегти вибір
                     </button>
                     <button onClick={handleAcceptAll} style={styles.btnPrimary}>
                         Прийняти всі
@@ -112,7 +126,7 @@ const styles = {
         bottom: "20px",
         left: "20px",
         right: "20px",
-        zIndex: 2000, // Вищий ніж у Header та Board
+        zIndex: 2000,
         display: "flex",
         justifyContent: "center",
     },
@@ -124,7 +138,30 @@ const styles = {
         maxWidth: "500px",
         color: "#333",
     },
-    buttonGroup: { display: "flex", gap: "10px", marginTop: "15px" },
+    description: {
+        fontSize: "14px",
+        lineHeight: "1.5",
+        marginBottom: "15px",
+        color: "#555",
+    },
+    option: {
+        marginBottom: "10px",
+        padding: "10px",
+        backgroundColor: "#f8f9fa",
+        borderRadius: "6px",
+    },
+    label: {
+        display: "flex",
+        alignItems: "flex-start",
+        gap: "10px",
+        fontSize: "13px",
+        cursor: "pointer",
+    },
+    buttonGroup: {
+        display: "flex",
+        gap: "10px",
+        marginTop: "15px",
+    },
     btnPrimary: {
         backgroundColor: "#667eea",
         color: "white",
@@ -132,6 +169,7 @@ const styles = {
         padding: "8px 16px",
         borderRadius: "4px",
         cursor: "pointer",
+        flex: 1,
     },
     btnSecondary: {
         backgroundColor: "#6c757d",
@@ -140,6 +178,7 @@ const styles = {
         padding: "8px 16px",
         borderRadius: "4px",
         cursor: "pointer",
+        flex: 1,
     },
 };
 

@@ -5,11 +5,10 @@ import "./Board.css";
 /**
  * Board component that renders the game grid.
  * It dynamically generates rows and cells based on the provided board state.
- * @param {Object} props - Component properties.
- * @param {string[][]} props.board - A 2D array representing the game state (e.g., [['X', 'O', null], ...]).
- * @param {Function} props.onCellClick - Callback function executed when a cell is clicked.
- * @param {boolean} [props.disabled=false] - If true, prevents interaction with the board.
- * @param {boolean} [props.isResultView=false] - If true, applies specific styles for the results screen.
+ * @param {string[][]} board - A 2D array representing the game state (e.g., [['X', 'O', null], ...]).
+ * @param {Function} onCellClick - Callback function executed when a cell is clicked.
+ * @param {boolean} [disabled=false] - If true, prevents interaction with the board.
+ * @param {boolean} [isResultView=false] - If true, applies specific styles for the results screen.
  * @returns {JSX.Element} The rendered game board grid.
  */
 const Board = ({

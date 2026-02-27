@@ -7,8 +7,7 @@ import "./SettingsForm.css";
 
 /**
  * Form component for managing game configuration like board size and winning rules.
- * @param {Object} props - Component properties.
- * @param {Function} props.onClose - Callback to close the settings view.
+ * @param {Function} onClose - Callback to close the settings view.
  * @returns {JSX.Element} A form synchronized with the settings store.
  */
 const SettingsForm = ({ onClose }) => {

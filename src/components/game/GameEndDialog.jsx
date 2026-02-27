@@ -6,12 +6,11 @@ import "./GameEndDialog.css";
 /**
  * Dialog component that appears when the game session ends.
  * Displays the winner, draw status, or surrender message.
- * @param {Object} props - Component properties.
- * @param {boolean} props.isOpen - Controls the modal visibility.
- * @param {Function} props.onClose - Function to close the dialog.
- * @param {Object|null} props.result - Details of the game outcome.
- * @param {Function} props.onNewGame - Handler for starting a fresh game.
- * @param {Function} props.onMainMenu - Handler for returning to the start page.
+ * @param {boolean} isOpen - Controls the modal visibility.
+ * @param {Function} onClose - Function to close the dialog.
+ * @param {Object|null} result - Details of the game outcome.
+ * @param {Function} onNewGame - Handler for starting a fresh game.
+ * @param {Function} onMainMenu - Handler for returning to the start page.
  * @returns {JSX.Element} A Modal containing game results and actions.
  */
 const GameEndDialog = ({ isOpen, onClose, result, onNewGame, onMainMenu }) => {

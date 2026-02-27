@@ -5,10 +5,9 @@ import "./Modal.css";
 /**
  * A portal-based Modal component that renders children over an overlay.
  * Handles body scroll locking when active.
- * @param {Object} props - Component properties.
- * @param {React.ReactNode} props.children - Content to be displayed inside the modal.
- * @param {boolean} props.isOpen - Controls the visibility of the modal.
- * @param {Function} props.onClose - Callback function to trigger when clicking the overlay.
+ * @param {React.ReactNode} children - Content to be displayed inside the modal.
+ * @param {boolean} isOpen - Controls the visibility of the modal.
+ * @param {Function} onClose - Callback function to trigger when clicking the overlay.
  * @returns {JSX.Element|null} The rendered Modal portal or null if closed.
  */
 const Modal = ({ children, isOpen, onClose }) => {
