@@ -29,3 +29,6 @@ Since we do not store your data, you have full control over your privacy:
 ## 4. Disclaimer
 
 This project was created solely for educational purposes. The author is not responsible for any consequences resulting from the use of this software.
+
+## 5. Contact Information
+If you have any questions about this Privacy Policy or how this project handles data, you can contact the developer at: `ipzk241_zhdv@student.ztu.edu.ua` - Zherebtsov Dmytro.
